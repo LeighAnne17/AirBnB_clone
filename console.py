@@ -145,6 +145,12 @@ class HBNBCommand(cmd.Cmd):
                     self.do_count(class_name)
                 else:
                     print("** class doesn't exist **")
+                    elif command.startswith("show(") and command.endswith(")"):
+                if class_name in globals():
+                    instance_id = command[5:-1]
+                    self.do_show("{} {}".format(class_name, instance_id))
+                else:
+                    print("** class doesn't exist **")
             else:
                 print("*** Unknown syntax: {}".format(line))
         else:
