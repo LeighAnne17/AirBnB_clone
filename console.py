@@ -129,6 +129,17 @@ class HBNBCommand(cmd.Cmd):
         setattr(obj, attribute_name, value)
         obj.save()
 
+    def default(self, line):
+        """Catches unknown commands and tries to handle <class name>.all()"""
+        args = line.split('.')
+        if len(args) == 2 and args[1] == "all()":
+            class_name = args[0]
+            if class_name in globals():
+                self.do_all(class_name)
+            else:
+                print("** class doesn't exist **")
+        else:
+            print("*** Unknown syntax: {}".format(line))
 
     def do_help(self, arg):
         """Help command to display available commands"""
