@@ -101,7 +101,7 @@ class HBNBCommand(cmd.Cmd):
         
      def do_update(self, arg):
         """Updates an instance based on the class name and id"""
-        args = arg.split()
+        args = shlex.split(arg)
         if not args:
             print("** class name missing **")
             return
@@ -118,16 +118,20 @@ class HBNBCommand(cmd.Cmd):
             print("** no instance found **")
             return
         if len(args) < 3:
-            print("** attribute name missing **")
+            print("** dictionary missing **")
             return
-        if len(args) < 4:
-            print("** value missing **")
+        try:
+            dictionary = eval(args[2])
+            if not isinstance(dictionary, dict):
+                raise ValueError
+        except (NameError, ValueError, SyntaxError):
+            print("** invalid dictionary **")
             return
-        attribute_name = args[2]
-        value = args[3]
         obj = storage.all()[key]
-        setattr(obj, attribute_name, value)
+        for k, v in dictionary.items():
+            setattr(obj, k, v)
         obj.save()
+
 
     def default(self, line):
         """Catches unknown commands and tries to handle <class name>.all()"""
@@ -145,10 +149,28 @@ class HBNBCommand(cmd.Cmd):
                     self.do_count(class_name)
                 else:
                     print("** class doesn't exist **")
-                    elif command.startswith("show(") and command.endswith(")"):
+                elif command.startswith("show(") and command.endswith(")"):
+                    if class_name in globals():
+                        instance_id = command[5:-1]
+                        self.do_show("{} {}".format(class_name, instance_id))
+                else:
+                    print("** class doesn't exist **")
+                elif command.startswith("destroy(") and command.endswith(")"):
+                    if class_name in globals():
+                        instance_id = command[8:-1]
+                        self.do_destroy("{} {}".format(class_name, instance_id))
+                else:
+                    print("** class doesn't exist **")
+                elif command.startswith("update(") and command.endswith(")"):
                 if class_name in globals():
-                    instance_id = command[5:-1]
-                    self.do_show("{} {}".format(class_name, instance_id))
+                    args = command[7:-1].split(', ')
+                    if len(args) == 3:
+                        instance_id = args[0]
+                        attribute_name = args[1]
+                        attribute_value = args[2]
+                        self.do_update("{} {} {} {}".format(class_name, instance_id, attribute_name, attribute_value))
+                    else:
+                        print("** incorrect number of arguments **")
                 else:
                     print("** class doesn't exist **")
             else:
