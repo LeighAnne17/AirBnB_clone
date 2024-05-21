@@ -100,38 +100,40 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
         
      def do_update(self, arg):
-        """Updates an instance based on the class name and id"""
-        args = shlex.split(arg)
-        if not args:
-            print("** class name missing **")
-            return
-        class_name = args[0]
-        if class_name not in globals():
-            print("** class doesn't exist **")
-            return
-        if len(args) < 2:
-            print("** instance id missing **")
-            return
-        instance_id = args[1]
-        key = "{}.{}".format(class_name, instance_id)
-        if key not in storage.all():
-            print("** no instance found **")
-            return
-        if len(args) < 3:
-            print("** dictionary missing **")
-            return
-        try:
-            dictionary = eval(args[2])
-            if not isinstance(dictionary, dict):
-                raise ValueError
-        except (NameError, ValueError, SyntaxError):
-            print("** invalid dictionary **")
-            return
-        obj = storage.all()[key]
-        for k, v in dictionary.items():
-            setattr(obj, k, v)
-        obj.save()
-
+          """Update an instance based on the class name and id by adding or updating attribute (save the change into the JSON file)."""
+          if len(arg) == 0:
+              print("** class name missing **")
+              return
+          args = arg.split()
+          if args[0] not in HBNBCommand.__classes:
+              print("** class doesn't exist **")
+              return
+          if len(args) == 1:
+              print("** instance id missing **")
+              return
+          if len(args) == 2:
+              print("** attribute name missing **")
+              return
+          if len(args) == 3:
+              print("** value missing **")
+              return
+          obj_id = args[1]
+          obj_dict = storage.all()
+          obj_key = "{}.{}".format(args[0], obj_id)
+          if obj_key not in obj_dict:
+              print("** no instance found **")
+              return
+          obj = obj_dict[obj_key]
+          if args[2] not in obj.__dict__:
+              print("** attribute doesn't exist **")
+              return
+          attr_type = type(getattr(obj, args[2]))
+          try:
+              value = attr_type(args[3])
+          except ValueError:
+              value = args[3]
+              setattr(obj, args[2], value)
+              obj.save()
 
     def default(self, line):
         """Catches unknown commands and tries to handle <class name>.all()"""
