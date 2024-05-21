@@ -132,14 +132,31 @@ class HBNBCommand(cmd.Cmd):
     def default(self, line):
         """Catches unknown commands and tries to handle <class name>.all()"""
         args = line.split('.')
-        if len(args) == 2 and args[1] == "all()":
-            class_name = args[0]
-            if class_name in globals():
-                self.do_all(class_name)
+        if len(args) == 2:
+             class_name = args[0]
+            command = args[1]
+            if command == "all()":
+                if class_name in globals():
+                    self.do_all(class_name)
+                else:
+                    print("** class doesn't exist **")
+            elif command == "count()":
+                if class_name in globals():
+                    self.do_count(class_name)
+                else:
+                    print("** class doesn't exist **")
             else:
-                print("** class doesn't exist **")
+                print("*** Unknown syntax: {}".format(line))
         else:
             print("*** Unknown syntax: {}".format(line))
+
+    def do_count(self, class_name):
+        """Counts the number of instances of a class"""
+        count = 0
+        for key in storage.all().keys():
+            if key.startswith(class_name + '.'):
+                count += 1
+        print(count)
 
     def do_help(self, arg):
         """Help command to display available commands"""
