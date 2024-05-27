@@ -1,0 +1,1 @@
+Web Static of an AirBnB clone project
