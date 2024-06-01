@@ -1,7 +1,8 @@
 .places {
     font-size: 30px;
     padding-left: 30px;
-    text-align: center
+    text-align: center;
+    padding-bottom: 40px;
 }
 
 .places h1 {
